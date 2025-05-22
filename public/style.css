@@ -1,0 +1,49 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f6f9;
+  color: #333;
+}
+
+.container {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  color: #1e40af;
+  margin-bottom: 10px;
+}
+
+.tagline {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 40px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 400px;
+  margin: auto;
+}
+
+.card {
+  display: block;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-size: 1.2rem;
+  text-decoration: none;
+  color: #1e3a8a;
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  background-color: #1e3a8a;
+  color: white;
+  transform: translateY(-2px);
+}

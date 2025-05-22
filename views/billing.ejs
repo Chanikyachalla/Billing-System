@@ -1,0 +1,167 @@
+<!-- billing.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Billing - SSK Enterprises</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .bill-preview {
+      border: 1px dashed #444;
+      padding: 10px;
+      width: 300px;
+      font-family: monospace;
+      margin-top: 20px;
+    }
+    .bill-preview h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .bill-line {
+      display: flex;
+      justify-content: space-between;
+    }
+    #confirmBill {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧾 Generate Bill</h1>
+
+    <!-- Form Part -->
+    <form id="billingForm">
+      <div>
+        <label for="product">Product Name:</label>
+        <input type="text" id="product" list="productSuggestions" required />
+     
+        <label>Quantity:</label>
+        <input type="number" id="quantity" min="1" required />
+        <button type="button" onclick="addItem()">Add Item</button>
+      </div>
+
+      <datalist id="productSuggestions"></datalist>
+
+      <ul id="billItems"></ul>
+
+      <div>
+        <label>Discount (%):</label>
+        <input type="number" id="discount" min="0" max="100" value="0" />
+      </div>
+
+      <button type="button" onclick="previewBill()">Generate  Preview Bill</button>
+    </form>
+
+    <!-- Preview Area -->
+    <div id="billPreview" class="bill-preview" style="display: none;"></div>
+    <form action="/billing" method="POST" id="confirmForm">
+      <input type="hidden" name="items" id="itemsInput" />
+      <input type="hidden" name="discount" id="discountInput" />
+      <button type="submit" id="confirmBill" style="display:none;">Confirm Bill</button>
+    </form>
+  </div>
+
+  <div id="previewSection" style="display:none; border:1px solid #ccc; margin-top:20px; padding:10px;">
+  <h2>🧾 Bill Preview - SRI SAI KRISHNA ENTERPRISES</h2>
+  <ul id="previewItems"></ul>
+  <p>Total: ₹<span id="previewTotal"></span></p>
+  <p>Discount: <span id="previewDiscount"></span>%</p>
+  <h3>Final Total: ₹<span id="previewFinal"></span></h3>
+  <form id="confirmForm" action="/billing/confirm" method="POST">
+    <input type="hidden" name="items" id="confirmItems">
+    <input type="hidden" name="discount" id="confirmDiscount">
+    <button type="submit">✅ Confirm Bill</button>
+  </form>
+</div>
+
+
+  <script>
+    const items = [];
+
+    document.getElementById("product").addEventListener("input", async function () {
+      const query = this.value;
+      if (query.length < 1) return;
+
+      const res = await fetch(`/api/products?query=${query}`);
+      const products = await res.json();
+
+      const datalist = document.getElementById("productSuggestions");
+      datalist.innerHTML = "";
+      products.forEach(p => {
+        const option = document.createElement("option");
+        option.value = p.name;
+        datalist.appendChild(option);
+      });
+    });
+
+    function addItem() {
+  const name = document.getElementById("product").value;
+  const quantity = parseInt(document.getElementById("quantity").value);
+  if (!name || quantity <= 0) return alert("Enter valid name and quantity");
+
+  // Add item to the array
+  items.push({ name, quantity });
+
+  // Create li element
+  const li = document.createElement("li");
+  li.innerText = `${name} - ${quantity} `;
+
+  // Create remove button
+  const removeBtn = document.createElement("button");
+  removeBtn.textContent = "Remove";
+  removeBtn.style.marginLeft = "10px";
+  removeBtn.onclick = () => {
+    // Remove from items array
+    const index = items.findIndex(item => item.name === name && item.quantity === quantity);
+    if (index > -1) {
+      items.splice(index, 1);
+    }
+    // Remove li from DOM
+    li.remove();
+  };
+
+  li.appendChild(removeBtn);
+  document.getElementById("billItems").appendChild(li);
+
+  // Clear inputs
+  document.getElementById("product").value = '';
+  document.getElementById("quantity").value = '';
+}
+
+
+
+    async function previewBill() {
+      const discount = parseFloat(document.getElementById("discount").value);
+      if (items.length === 0) return alert("Add at least one item");
+
+      // Fetch prices from backend
+      const res = await fetch('/api/price-details', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items })
+      });
+      const { detailedItems, total } = await res.json();
+
+      const discounted = total - (discount / 100) * total;
+
+      const previewDiv = document.getElementById("billPreview");
+      previewDiv.innerHTML = `
+        <h2>SSK ENTERPRISES</h2>
+        ${detailedItems.map(i => `
+          <div class="bill-line"><span>${i.name}</span><span>${i.quantity} x ₹${i.price}</span></div>
+        `).join('')}
+        <hr />
+        <div class="bill-line"><strong>Total</strong><span>₹${total}</span></div>
+        <div class="bill-line"><strong>Discount</strong><span>${discount}%</span></div>
+        <div class="bill-line"><strong>Final</strong><span><b>₹${discounted.toFixed(2)}</b></span></div>
+      `;
+      previewDiv.style.display = "block";
+
+      // Set hidden fields
+      document.getElementById("itemsInput").value = JSON.stringify(items);
+      document.getElementById("discountInput").value = discount;
+      document.getElementById("confirmBill").style.display = "inline-block";
+    }
+  </script>
+</body>
+</html>

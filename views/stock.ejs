@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stock Management</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background: #f4f4f4;
+    }
+    form {
+      margin-top: 20px;
+    }
+    label, input {
+      display: block;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Stock Management</h1>
+
+  <form action="/stock/add" method="POST">
+    <label>Product Name
+      <input type="text" name="name" required />
+    </label>
+    <label>Price (₹)
+      <input type="number" name="price" step="0.01" min="0" required />
+    </label>
+    <label>Quantity
+      <input type="number" name="quantity" min="1" required />
+    </label>
+    <button type="submit">Add / Update Product</button>
+  </form>
+
+  <h2>Current Stock</h2>
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Price (₹)</th><th>Quantity</th></tr>
+    </thead>
+    <tbody>
+      <% if(products.length === 0){ %>
+        <tr><td colspan="3">No products found.</td></tr>
+      <% } else { %>
+        <% products.forEach(p => { %>
+          <tr>
+            <td><%= p.name %></td>
+            <td><%= p.price.toFixed(2) %></td>
+            <td><%= p.quantity %></td>
+          </tr>
+        <% }) %>
+      <% } %>
+    </tbody>
+  </table>
+
+  <p><a href="/">Back to Home</a></p>
+</body>
+</html>

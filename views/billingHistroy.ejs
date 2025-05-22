@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Billing History</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .date-group {
+      margin-bottom: 30px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      text-align: left;
+    }
+    th {
+      background: #f4f4f4;
+    }
+  </style>
+</head>
+<body>
+  <h1>Billing History</h1>
+
+  <% if(Object.keys(grouped).length === 0) { %>
+    <p>No billing records found.</p>
+  <% } else { %>
+    <% Object.entries(grouped).forEach(([date, bills]) => { %>
+      <div class="date-group">
+        <h2><%= date %></h2>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Items</th>
+              <th>Discount (%)</th>
+              <th>Final Amount (₹)</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% bills.forEach((bill, idx) => { %>
+              <tr>
+                <td><%= idx + 1 %></td>
+                <td>
+                  <% bill.items.forEach(item => { %>
+                    <div><%= item.name %> × <%= item.quantity %> = ₹<%= item.total.toFixed(2) %></div>
+                  <% }); %>
+                </td>
+                <td><%= bill.discountPercent %></td>
+                <td>₹<%= bill.finalAmount.toFixed(2) %></td>
+                <td><%= new Date(bill.createdAt).toLocaleTimeString() %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% }); %>
+  <% } %>
+
+  <p><a href="/">Back to Home</a></p>
+</body>
+</html>
