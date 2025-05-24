@@ -1,8 +1,10 @@
 {
   "name": "billingsystem",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,6 +19,18 @@
     "pdfkit": "^0.17.1"
   },
   "devDependencies": {
-    "electron": "^36.3.1"
+    "electron": "^36.3.1",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.ssk.billing",
+    "productName": "SSK Billing System",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    }
   }
 }
