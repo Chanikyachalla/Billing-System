@@ -1,0 +1,16 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.ssk.billing
+productName: SSK Billing System
+win:
+  target: nsis
+  icon: icon.ico
+mac:
+  target: dmg
+  icon: icon.icns
+linux:
+  target: AppImage
+  icon: icon.png
+files: []
+electronVersion: 28.3.3
