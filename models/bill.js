@@ -1,17 +1,6 @@
-const mongoose = require('mongoose');
-
 const billSchema = new mongoose.Schema({
-  items: [
-    {
-      name: String,
-      quantity: Number,
-      unitPrice: Number,
-      total: Number
-    }
-  ],
-  discountPercent: Number,
-  finalAmount: Number
-}, { timestamps: true });
+  date: { type: Date, default: Date.now }, // Bill timestamp
+  totalAmount: { type: Number, required: true } // Final total
+});
 
-module.exports = mongoose.model('Bill', billSchema);
-
+const Bill = mongoose.model("Bill", billSchema);

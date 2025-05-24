@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bill History - SSK Enterprises</title>
+</head>
+<body>
+  <h1>📜 Bill History</h1>
+  <table border="1">
+    <tr>
+      <th>Date</th>
+      <th>Total Revenue</th>
+      <th>Bills Generated</th>
+    </tr>
+    <tbody id="historyTable"></tbody>
+  </table>
+
+  <button onclick="window.location.href='/billing'">⬅️ Back to Billing</button>
+
+  <script>
+    async function fetchHistory() {
+      try {
+        const res = await fetch('/api/revenue-history');
+        const data = await res.json();
+        
+        document.getElementById("historyTable").innerHTML = data.map(entry => `
+          <tr>
+            <td>${entry._id}</td>
+            <td>₹${entry.totalRevenue.toFixed(2)}</td>
+            <td>${entry.billCount}</td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error("Error loading history:", error);
+      }
+    }
+
+    fetchHistory();
+  </script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+{
+  "2025-05-22": [
+    {
+      "time": "17:42:57",
+      "items": [
+        {
+          "name": "cooler",
+          "quantity": 1,
+          "price": 7500
+        }
+      ],
+      "total": 7500,
+      "discount": 1,
+      "final": 7425
+    },
+    {
+      "time": "17:46:24",
+      "items": [
+        {
+          "name": "switches",
+          "quantity": 2,
+          "price": 25
+        },
+        {
+          "name": "cooler",
+          "quantity": 1,
+          "price": 7500
+        },
+        {
+          "name": "Fevicol marine",
+          "quantity": 2,
+          "price": 230
+        }
+      ],
+      "total": 8010,
+      "discount": 0,
+      "final": 8010
+    }
+  ],
+  "2025-05-23": [
+    {
+      "time": "09:45:03",
+      "items": [
+        {
+          "name": "switches",
+          "quantity": 1,
+          "price": 25
+        }
+      ],
+      "total": 25,
+      "discount": 0,
+      "final": 25
+    },
+    {
+      "time": "09:50:48",
+      "items": [
+        {
+          "name": "switches",
+          "quantity": 1,
+          "price": 25
+        }
+      ],
+      "total": 25,
+      "discount": 0,
+      "final": 25
+    },
+    {
+      "time": "10:06:34",
+      "items": [
+        {
+          "name": "Fevicol marine",
+          "quantity": 1,
+          "price": 230
+        }
+      ],
+      "total": 230,
+      "discount": 0,
+      "final": 230
+    },
+    {
+      "time": "10:13:35",
+      "items": [
+        {
+          "name": "Fevicol marine",
+          "quantity": 1,
+          "price": 230
+        }
+      ],
+      "total": 230,
+      "discount": 0,
+      "final": 230
+    },
+    {
+      "time": "10:15:20",
+      "items": [
+        {
+          "name": "Fevicol marine",
+          "quantity": 1,
+          "price": 230
+        },
+        {
+          "name": "cooler",
+          "quantity": 1,
+          "price": 7500
+        }
+      ],
+      "total": 7730,
+      "discount": 0,
+      "final": 7730
+    },
+    {
+      "time": "10:23:17",
+      "items": [
+        {
+          "name": "Fevicol marine",
+          "quantity": 1,
+          "price": 230
+        }
+      ],
+      "total": 230,
+      "discount": 0,
+      "final": 230
+    },
+    {
+      "time": "10:56:03",
+      "items": [
+        {
+          "name": "Fevicol marine",
+          "quantity": 1,
+          "price": 230
+        }
+      ],
+      "total": 230,
+      "discount": 0,
+      "final": 230
+    },
+    {
+      "time": "21:21:59",
+      "final": null
+    },
+    {
+      "time": "21:24:54",
+      "final": null
+    }
+  ],
+  "2025-05-24": [
+    {
+      "time": "10:45:19",
+      "final": null
+    },
+    {
+      "time": "10:45:44",
+      "final": null
+    },
+    {
+      "time": "10:50:12",
+      "final": null
+    },
+    {
+      "time": "16:48:29",
+      "final": null
+    }
+  ]
+}

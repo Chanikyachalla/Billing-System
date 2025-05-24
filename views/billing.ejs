@@ -1,81 +1,76 @@
-<!-- billing.ejs -->
 <!DOCTYPE html>
 <html>
 <head>
   <title>Billing - SSK Enterprises</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
-    .bill-preview {
-      border: 1px dashed #444;
-      padding: 10px;
-      width: 300px;
-      font-family: monospace;
-      margin-top: 20px;
+    .bill-preview { border: 1px dashed #444; padding: 10px; width: 300px; font-family: monospace; margin-top: 20px; }
+    .bill-preview h2 { text-align: center; margin-bottom: 0; }
+    .bill-preview p { text-align: center; margin: 0; }
+    .bill-line { display: flex; justify-content: space-between; }
+    @media print {
+      body * { visibility: hidden; }
+      #printableArea, #printableArea * { visibility: visible; }
+      #printableArea { position: absolute; left: 0; top: 0; width: 58mm; }
     }
-    .bill-preview h2 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .bill-line {
-      display: flex;
-      justify-content: space-between;
-    }
-    #confirmBill {
-      margin-top: 10px;
-    }
+   .body{
+    background-color: #f3f4f6;
+   }
+    
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🧾 Generate Bill</h1>
 
-    <!-- Form Part -->
-    <form id="billingForm">
+    <form id="billingForm" onsubmit="event.preventDefault(); previewBill();">
       <div>
         <label for="product">Product Name:</label>
-        <input type="text" id="product" list="productSuggestions" required />
-     
-        <label>Quantity:</label>
-        <input type="number" id="quantity" min="1" required />
+        <input type="text" id="product" list="productSuggestions"  />
+
+        <label>Qty:</label>
+        <input type="number" id="quantity" min="1"  />
+
+        <label>Discount %:</label>
+        <input type="number" id="itemDiscount" min="0" value="0" />
+
+        <label>Hike %:</label>
+        <input type="number" id="itemHike" min="0" value="0" />
+
         <button type="button" onclick="addItem()">Add Item</button>
       </div>
 
       <datalist id="productSuggestions"></datalist>
-
       <ul id="billItems"></ul>
 
       <div>
-        <label>Discount (%):</label>
-        <input type="number" id="discount" min="0" max="100" value="0" />
+        <label>Overall Discount (%):</label>
+        <input type="number" id="overallDiscount" min="0" max="100" value="0" />
       </div>
 
-      <button type="button" onclick="previewBill()">Generate  Preview Bill</button>
+      <button type="submit">Generate Preview Bill</button>
     </form>
 
-    <!-- Preview Area -->
-    <div id="billPreview" class="bill-preview" style="display: none;"></div>
+    <div id="billPreview" class="bill-preview" style="display: none;">
+      <div id="printableArea"></div>
+      <button onclick="window.print()">🖨️ Print</button>
+      
+    </div>
+
     <form action="/billing" method="POST" id="confirmForm">
       <input type="hidden" name="items" id="itemsInput" />
       <input type="hidden" name="discount" id="discountInput" />
-      <button type="submit" id="confirmBill" style="display:none;">Confirm Bill</button>
+      <button type="submit" id="confirmBill" style="display:none;">✅ Confirm and Save Bill</button>
+       
+
+      
+
     </form>
+    <button onclick="resetBill()">🆕 New Bill</button>
   </div>
 
-  <div id="previewSection" style="display:none; border:1px solid #ccc; margin-top:20px; padding:10px;">
-  <h2>🧾 Bill Preview - SRI SAI KRISHNA ENTERPRISES</h2>
-  <ul id="previewItems"></ul>
-  <p>Total: ₹<span id="previewTotal"></span></p>
-  <p>Discount: <span id="previewDiscount"></span>%</p>
-  <h3>Final Total: ₹<span id="previewFinal"></span></h3>
-  <form id="confirmForm" action="/billing/confirm" method="POST">
-    <input type="hidden" name="items" id="confirmItems">
-    <input type="hidden" name="discount" id="confirmDiscount">
-    <button type="submit">✅ Confirm Bill</button>
-  </form>
-</div>
-
-
   <script>
+
     const items = [];
 
     document.getElementById("product").addEventListener("input", async function () {
@@ -95,73 +90,245 @@
     });
 
     function addItem() {
-  const name = document.getElementById("product").value;
-  const quantity = parseInt(document.getElementById("quantity").value);
-  if (!name || quantity <= 0) return alert("Enter valid name and quantity");
+      const name = document.getElementById("product").value;
+      const quantity = parseInt(document.getElementById("quantity").value);
+      const itemDiscount = parseFloat(document.getElementById("itemDiscount").value) || 0;
+      const itemHike = parseFloat(document.getElementById("itemHike").value) || 0;
 
-  // Add item to the array
-  items.push({ name, quantity });
+      if (!name || quantity <= 0) return alert("Enter valid name and quantity");
 
-  // Create li element
-  const li = document.createElement("li");
-  li.innerText = `${name} - ${quantity} `;
+      items.push({ name, quantity, discount: itemDiscount, hike: itemHike });
 
-  // Create remove button
-  const removeBtn = document.createElement("button");
-  removeBtn.textContent = "Remove";
-  removeBtn.style.marginLeft = "10px";
-  removeBtn.onclick = () => {
-    // Remove from items array
-    const index = items.findIndex(item => item.name === name && item.quantity === quantity);
-    if (index > -1) {
-      items.splice(index, 1);
+      const li = document.createElement("li");
+      li.innerText = `${name} - Qty: ${quantity}, Disc: ${itemDiscount}%, Hike: ${itemHike}%`;
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "Remove";
+      removeBtn.style.marginLeft = "10px";
+      removeBtn.onclick = () => {
+        const index = items.findIndex(item => item.name === name && item.quantity === quantity);
+        if (index > -1) items.splice(index, 1);
+        li.remove();
+      };
+      li.appendChild(removeBtn);
+      document.getElementById("billItems").appendChild(li);
+
+      document.getElementById("product").value = '';
+      document.getElementById("quantity").value = '';
+      document.getElementById("itemDiscount").value = '';
+      document.getElementById("itemHike").value = '';
     }
-    // Remove li from DOM
-    li.remove();
-  };
 
-  li.appendChild(removeBtn);
-  document.getElementById("billItems").appendChild(li);
 
-  // Clear inputs
-  document.getElementById("product").value = '';
-  document.getElementById("quantity").value = '';
+  function generateFormattedBill(billData) {
+  if (!billData || billData.items.length === 0) {
+    alert("No items to generate a bill.");
+    return;
+  }
+
+  let billHTML = `
+    <h2>SRI SAI KRISHNA ENTERPRISES</h2>
+    <p>Beside TDP Office, Main Road, Badangi</p>
+    <p>Phone: 9494789161</p>
+    <hr />
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Rate</th>
+        <th>Amount</th>
+      </tr>`;
+
+  billData.items.forEach(item => {
+    const finalRate = item.baseRate * (1 + (item.hike - item.discount) / 100);
+    const amount = finalRate * item.quantity;
+
+    billHTML += `
+      <tr>
+        <td>${item.name}</td>
+        <td>${item.quantity}</td>
+        <td>₹${item.baseRate.toFixed(2)}</td>
+        <td>₹${amount.toFixed(2)}</td>
+      </tr>`;
+  });
+
+  billHTML += `
+      <tr>
+        <td colspan="3"><strong>Total</strong></td>
+        <td><strong>₹${billData.total.toFixed(2)}</strong></td>
+      </tr>
+      ${billData.discount > 0 ? `
+      <tr>
+        <td colspan="3"><strong>Discount</strong></td>
+        <td><strong>${billData.discount}%</strong></td>
+      </tr>` : ''}
+      <tr>
+        <td colspan="3"><strong>Final Total</strong></td>
+        <td><strong>₹${billData.finalTotal.toFixed(2)}</strong></td>
+      </tr>
+    </table>
+    <hr />
+    <p>Thank You! Visit Again.</p>
+  `;
+
+  document.getElementById("printableArea").innerHTML = billHTML;
+  document.getElementById("billPreview").style.display = "block";
+}
+async function previewBill() {
+  const discount = parseFloat(document.getElementById("overallDiscount").value) || 0;
+  if (items.length === 0) return alert("Add at least one item");
+
+  try {
+    const res = await fetch('/api/price-details', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    });
+
+    const data = await res.json();
+
+    // Ensure safe defaults for missing values
+    const detailedItems = Array.isArray(data.detailedItems) ? data.detailedItems : [];
+    const total = parseFloat(data.total ?? 0);
+    const finalTotal = total - (discount / 100) * total;
+
+    // Construct billData safely
+    const billData = {
+      items: detailedItems.map(item => ({
+        name: item.name || "Unknown Item",
+        quantity: item.quantity ?? 1, 
+        baseRate: item.price ?? 0, 
+        hike: item.hike ?? 0, 
+        discount: item.discount ?? 0
+      })),
+      total: total,
+      discount: discount,
+      finalTotal: finalTotal
+    };
+
+    // Call function safely
+    genbil(billData);
+
+    // Set values for form submission
+    document.getElementById("itemsInput").value = JSON.stringify(items);
+    document.getElementById("discountInput").value = discount;
+    document.getElementById("confirmBill").style.display = "inline-block";
+
+  } catch (error) {
+    console.error("❌ Error in previewBill():", error);
+    alert("Failed to generate bill preview. See console for details.");
+  }
 }
 
 
 
-    async function previewBill() {
-      const discount = parseFloat(document.getElementById("discount").value);
-      if (items.length === 0) return alert("Add at least one item");
-
-      // Fetch prices from backend
-      const res = await fetch('/api/price-details', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items })
-      });
-      const { detailedItems, total } = await res.json();
-
-      const discounted = total - (discount / 100) * total;
-
-      const previewDiv = document.getElementById("billPreview");
-      previewDiv.innerHTML = `
-        <h2>SSK ENTERPRISES</h2>
-        ${detailedItems.map(i => `
-          <div class="bill-line"><span>${i.name}</span><span>${i.quantity} x ₹${i.price}</span></div>
-        `).join('')}
-        <hr />
-        <div class="bill-line"><strong>Total</strong><span>₹${total}</span></div>
-        <div class="bill-line"><strong>Discount</strong><span>${discount}%</span></div>
-        <div class="bill-line"><strong>Final</strong><span><b>₹${discounted.toFixed(2)}</b></span></div>
-      `;
-      previewDiv.style.display = "block";
-
-      // Set hidden fields
-      document.getElementById("itemsInput").value = JSON.stringify(items);
-      document.getElementById("discountInput").value = discount;
-      document.getElementById("confirmBill").style.display = "inline-block";
+function genbil(billData) {
+    if (!billData || billData.items.length === 0) {
+        alert("No items to generate a bill.");
+        return;
     }
+
+    let billHTML = `
+        <div style="width: 794px; margin: auto; padding: 30px; font-family: Arial, sans-serif;">
+            <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px;">
+                <h1 style="margin-bottom: 5px;">SRI SAI KRISHNA ENTERPRISES</h1>
+                <p style="margin: 0;">Beside TDP Office, Main Road, Badangi</p>
+                <p style="margin: 0;">Phone: 9494789161</p>
+            </div>
+            
+            <h2 style="text-align: center; margin-top: 20px;">Invoice</h2>
+            
+            <table border="1" style="width: 100%; border-collapse: collapse; font-size: 18px; text-align: center; margin-top: 20px;">
+                <tr style="background-color: #f2f2f2;">
+                    <th style="padding: 10px;">Item</th>
+                    <th style="padding: 10px;">Qty</th>
+                    <th style="padding: 10px;">Rate</th>
+                    <th style="padding: 10px;">Amount</th>
+                </tr>`;
+    
+    let totalSavings = 0; // Initialize a variable to accumulate all discounts (item-wise + overall)
+    let subTotalBeforeDiscounts = 0; // To calculate the sum of (baseRate * quantity) for all items
+
+    billData.items.forEach(item => {
+        // Calculate the amount if there were no item-specific discounts or hikes
+        const baseAmount = item.baseRate * item.quantity;
+        subTotalBeforeDiscounts += baseAmount;
+
+        // Calculate the effective rate after applying individual item hike and discount
+        const effectiveRate = item.baseRate * (1 + (item.hike / 100) - (item.discount / 100));
+        
+        // Calculate the amount for the current item based on the effective rate
+        const itemAmountAfterIndividualDiscounts = effectiveRate * item.quantity;
+        
+        // Calculate item-wise savings
+        const currentItemSavings = baseAmount - itemAmountAfterIndividualDiscounts;
+        totalSavings += currentItemSavings;
+
+        billHTML += `
+                <tr>
+                    <td style="padding: 10px;">${item.name}</td>
+                    <td style="padding: 10px;">${item.quantity}</td>
+                    <td style="padding: 10px;">₹${item.baseRate.toFixed(2)}</td>
+                    <td style="padding: 10px;">₹${itemAmountAfterIndividualDiscounts.toFixed(2)}</td>
+                </tr>`;
+    });
+
+    // Calculate overall discount amount based on the total *after* item-wise discounts but *before* overall discount
+    const overallDiscountAmount = (billData.total * (billData.discount / 100));
+    totalSavings += overallDiscountAmount; // Add overall discount to total savings
+
+    billHTML += `
+                <tr style="background-color: #f2f2f2;">
+                    <td colspan="3" style="padding: 10px;"><strong>Subtotal</strong></td>
+                    <td style="padding: 10px;"><strong>₹${billData.total.toFixed(2)}</strong></td>
+                </tr>`;
+    
+    if (totalSavings > 0) {
+        billHTML += `
+                <tr>
+                    <td colspan="3" style="padding: 10px;"><strong>Your Savings</strong></td>
+                    <td style="padding: 10px;"><strong>₹${totalSavings.toFixed(2)}</strong></td>
+                </tr>`;
+    }
+
+    billHTML += `
+                <tr style="background-color: #f2f2f2;">
+                    <td colspan="3" style="padding: 10px;"><strong>Payable Amount</strong></td>
+                    <td style="padding: 10px;"><strong>₹${billData.finalTotal.toFixed(2)}</strong></td>
+                </tr>
+            </table>
+
+            <hr />
+            <p style="text-align: center; margin-top: 30px; font-size: 20px;">Thank You! Visit Again.</p>
+        </div>
+    `;
+
+    document.getElementById("printableArea").innerHTML = billHTML;
+    document.getElementById("billPreview").style.display = "block";
+}
+
+function resetBill() {
+  // Clear all stored items
+  items.length = 0;
+  document.getElementById("billItems").innerHTML = "";
+  
+  // Reset input fields
+  document.getElementById("product").value = "";
+  document.getElementById("quantity").value = "";
+  document.getElementById("itemDiscount").value = "0";
+  document.getElementById("itemHike").value = "0";
+  document.getElementById("overallDiscount").value = "0";
+
+  // Hide bill preview
+  document.getElementById("billPreview").style.display = "none";
+  document.getElementById("printableArea").innerHTML = "";
+
+  // Refresh the page
+  location.reload();
+}
+  
+
+
   </script>
+  <p><a href="/">Back to Home</a></p>
 </body>
 </html>

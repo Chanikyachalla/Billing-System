@@ -1,58 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Bill Preview</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <title>Bill - SSK Enterprises</title>
+  <style>
+    body {
+      font-family: monospace;
+      width: 58mm;
+      margin: 0 auto;
+    }
+    .bill {
+      padding: 10px;
+      border: 1px dashed #444;
+    }
+    h2, p {
+      text-align: center;
+      margin: 0;
+    }
+    .line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    hr {
+      border-top: 1px dashed #444;
+      margin: 5px 0;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-6">
-  <div class="max-w-md mx-auto bg-white shadow-md rounded-xl p-6">
-    <h2 class="text-2xl font-bold text-center mb-4">🧾 Bill Preview</h2>
+<body>
+  <div class="bill">
+    <h2>SRI SAI KRISHNA ENTERPRISES</h2>
+    <p>Beside TDP Office, Main Road, Badangi</p>
+    <p>Phone: 9494789161</p>
+    <hr />
 
-    <table class="w-full table-auto border mb-4">
-      <thead>
-        <tr class="bg-gray-200 text-left">
-          <th class="p-2 border">Item</th>
-          <th class="p-2 border">Qty</th>
-          <th class="p-2 border">Rate</th>
-          <th class="p-2 border">Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% bill.items.forEach(item => { %>
-          <tr>
-            <td class="p-2 border"><%= item.name %></td>
-            <td class="p-2 border"><%= item.quantity %></td>
-            <td class="p-2 border">₹<%= item.price %></td>
-            <td class="p-2 border">₹<%= item.quantity * item.price %></td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
+    <% bill.items.forEach(item => { %>
+      <div class="line"><b><%= item.name %></b> <span><%= item.quantity %> x ₹<%= item.baseRate %></span></div>
+      <% if (item.discount > 0) { %>
+        <div class="line">Discount: <%= item.discount %>%</div>
+      <% } %>
+    <% }); %>
 
-    <div class="text-right mb-2">
-      <p class="text-sm">Total: ₹<%= bill.total %></p>
-      <p class="text-sm">Discount: <%= bill.discount %>%</p>
-      <p class="text-lg font-bold">Final Total: ₹<%= bill.finalTotal.toFixed(2) %></p>
-    </div>
-
-    <% if (typeof pdfPath !== 'undefined') { %>
-      <div class="text-center mt-4">
-        <a href="<%= pdfPath %>" download>
-          <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-            ⬇️ Download PDF
-          </button>
-        </a>
-      </div>
+    <hr />
+    <div class="line"><strong>Total</strong> <span>₹<%= bill.total.toFixed(2) %></span></div>
+    <% if (bill.discount > 0) { %>
+      <div class="line"><strong>Discount</strong> <span><%= bill.discount %>%</span></div>
     <% } %>
-
-    <div class="text-center mt-4">
-      <a href="/billing">
-        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-          🧾 New Bill
-        </button>
-      </a>
-    </div>
+    <div class="line"><strong>Final</strong> <span><b>₹<%= bill.finalTotal.toFixed(2) %></b></span></div>
+    <hr />
+    <p>Thank You! Visit Again.</p>
   </div>
 </body>
 </html>

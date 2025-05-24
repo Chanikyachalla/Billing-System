@@ -4,26 +4,21 @@ const billingController = require('../controllers/billingcontroller');
 
 router.get('/', billingController.renderBillingPage);
 router.post('/', billingController.handleBilling);
-router.post('/confirm', billingController.confirmBill);
+router.get('/history', billingController.renderBillingHistory);
+router.post("/billing", async (req, res) => {
+  try {
+    const { totalAmount } = req.body;
+    if (!totalAmount) return res.status(400).send("Total amount required");
 
-router.post('/billing/confirm', async (req, res) => {
-  const items = JSON.parse(req.body.items);
-  const discount = parseFloat(req.body.discount);
+    const bill = new Bill({ totalAmount, date: new Date() });
+    await bill.save();
 
-  for (const item of items) {
-    const product = await Product.findOne({ name: item.name });
-    if (product) {
-      product.quantity -= item.quantity;
-      await product.save();
-    }
+    res.send("Bill saved successfully");
+  } catch (error) {
+    console.error("Error saving bill:", error);
+    res.status(500).send("Server error");
   }
-
-  // You can also save this bill to a 'bills' collection here if needed
-
-  res.send('✅ Bill confirmed and stock updated!');
 });
 
 
-
 module.exports = router;
-
